@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard ThingsBoard</title>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <style>
+    body {
+      background: linear-gradient(135deg, #8B4513 0%, #D2691E 50%, #CD853F 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .dashboard-container {
+      padding: 2rem 0;
+    }
+    
+    .main-card {
+      background: rgba(255, 248, 240, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(139, 69, 19, 0.2);
+      border: 1px solid rgba(210, 180, 140, 0.3);
+    }
+    
+    .sensor-card {
+      background: linear-gradient(145deg, #FFF8DC, #F5DEB3);
+      border-radius: 15px;
+      border: 1px solid rgba(139, 69, 19, 0.1);
+      box-shadow: 0 8px 25px rgba(139, 69, 19, 0.15);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .sensor-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(139, 69, 19, 0.25);
+      background: linear-gradient(145deg, #FFFACD, #F0E68C);
+    }
+    
+    .sensor-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: white;
+      margin-bottom: 1rem;
+    }
+    
+    .temp-icon { background: linear-gradient(45deg, #A0522D, #8B4513); }
+    .humidity-icon { background: linear-gradient(45deg, #CD853F, #D2691E); }
+    .soil-icon { background: linear-gradient(45deg, #8B4513, #654321); }
+    .relay-icon { background: linear-gradient(45deg, #D2691E, #CD853F); }
+    .status-icon { background: linear-gradient(45deg, #A0522D, #8B4513); }
+    
+    .sensor-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #654321;
+    }
+    
+    .sensor-label {
+      color: #8B4513;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 0.85rem;
+    }
+    
+    .control-btn {
+      background: linear-gradient(45deg, #8B4513, #A0522D);
+      border: none;
+      border-radius: 50px;
+      padding: 12px 30px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      color: white;
+    }
+    
+    .control-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(139, 69, 19, 0.4);
+      background: linear-gradient(45deg, #A0522D, #CD853F);
+      color: white;
+    }
+    
+    .chart-container {
+      background: linear-gradient(145deg, #FFF8DC, #F5DEB3);
+      border-radius: 15px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      box-shadow: 0 5px 15px rgba(139, 69, 19, 0.1);
+      border: 1px solid rgba(139, 69, 19, 0.1);
+      height: 300px; /* Fixed height untuk grafik */
+    }
+    
+    .chart-wrapper {
+      position: relative;
+      height: 200px; /* Fixed height untuk canvas */
+    }
+    
+    .chart-title {
+      color: #654321;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .status-badge {
+      padding: 8px 16px;
+      border-radius: 25px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    
+    .status-active {
+      background: linear-gradient(45deg, #228B22, #32CD32);
+      color: white;
+    }
+    
+    .status-inactive {
+      background: linear-gradient(45deg, #8B4513, #654321);
+      color: white;
+    }
+    
+    .header-title {
+      background: linear-gradient(45deg, #8B4513, #CD853F);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid dashboard-container">
+    <div class="container">
+      <h1 class="header-title display-4">
+        <i class="bi bi-speedometer2"></i> Dashboard Monitoring Kakao
+      </h1>
+      
+      <div class="main-card p-4">
+        <!-- Tombol Kontrol -->
+        <div class="row mb-4">
+          <div class="col-12 text-center">
+            <button id="toggleSystem" class="btn control-btn btn-lg">
+              <i class="bi bi-power"> Kontrol Sistem</i>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Kartu Data Sensor -->
+        <div class="row g-4 mb-4">
+          <!-- Suhu -->
+          <div class="col-md-6 col-lg-4">
+            <div class="card sensor-card h-100">
+              <div class="card-body text-center">
+                <div class="sensor-icon temp-icon mx-auto">
+                  <i class="bi bi-thermometer-half"></i>
+                </div>
+                <div class="sensor-label">Suhu</div>
+                <div class="sensor-value" id="temperature">Memuat...</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Kelembaban -->
+          <div class="col-md-6 col-lg-4">
+            <div class="card sensor-card h-100">
+              <div class="card-body text-center">
+                <div class="sensor-icon humidity-icon mx-auto">
+                  <i class="bi bi-droplet-half"></i>
+                </div>
+                <div class="sensor-label">Kelembaban</div>
+                <div class="sensor-value" id="humidity">Memuat...</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- DS18B20 -->
+          <div class="col-md-6 col-lg-4">
+            <div class="card sensor-card h-100">
+              <div class="card-body text-center">
+                <div class="sensor-icon temp-icon mx-auto">
+                  <i class="bi bi-thermometer"></i>
+                </div>
+                <div class="sensor-label">Sensor DS18B20</div>
+                <div class="sensor-value" id="ds18b20">Memuat...</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Kelembaban Tanah 1 -->
+          <div class="col-md-6 col-lg-4">
+            <div class="card sensor-card h-100">
+              <div class="card-body text-center">
+                <div class="sensor-icon soil-icon mx-auto">
+                  <i class="bi bi-moisture"></i>
+                </div>
+                <div class="sensor-label">Kelembaban Tanah 1</div>
+                <div class="sensor-value" id="soil_moisture1">Memuat...</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Kelembaban Tanah 2 -->
+          <div class="col-md-6 col-lg-4">
+            <div class="card sensor-card h-100">
+              <div class="card-body text-center">
+                <div class="sensor-icon soil-icon mx-auto">
+                  <i class="bi bi-moisture"></i>
+                </div>
+                <div class="sensor-label">Kelembaban Tanah 2</div>
+                <div class="sensor-value" id="soil_moisture2">Memuat...</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Status Kakao -->
+          <div class="col-md-6 col-lg-4">
+            <div class="card sensor-card h-100">
+              <div class="card-body text-center">
+                <div class="sensor-icon status-icon mx-auto">
+                  <i class="bi bi-info-circle"></i>
+                </div>
+                <div class="sensor-label">Status Kakao</div>
+                <div class="sensor-value" id="status_kakao">Memuat...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Status Relay -->
+        <div class="row g-4 mb-4">
+          <div class="col-md-4">
+            <div class="card sensor-card h-100">
+              <div class="card-body text-center">
+                <div class="sensor-icon relay-icon mx-auto">
+                  <i class="bi bi-fire"></i>
+                </div>
+                <div class="sensor-label ">Pemanas</div>
+                <span class="status-badge" id="relay1">Memuat...</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="card sensor-card h-100">
+              <div class="card-body text-center">
+                <div class="sensor-icon relay-icon mx-auto">
+                  <i class="bi bi-fan"></i>
+                </div>
+                <div class="sensor-label">Kipas Sirkulasi</div>
+                <span class="status-badge" id="relay3">Memuat...</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="card sensor-card h-100">
+              <div class="card-body text-center">
+                <div class="sensor-icon relay-icon mx-auto">
+                  <i class="bi bi-wind"></i>
+                </div>
+                <div class="sensor-label">Exhaust</div>
+                <span class="status-badge" id="relay2">Memuat...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Grafik -->
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="chart-container">
+              <h5 class="chart-title">
+                <i class="bi bi-graph-up"></i> Grafik Suhu
+              </h5>
+              <div class="chart-wrapper">
+                <canvas id="tempChart"></canvas>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-6">
+            <div class="chart-container">
+              <h5 class="chart-title">
+                <i class="bi bi-graph-up"></i> Grafik Kelembaban
+              </h5>
+              <div class="chart-wrapper">
+                <canvas id="tempHumidity"></canvas>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-6">
+            <div class="chart-container">
+              <h5 class="chart-title">
+                <i class="bi bi-graph-up"></i> Grafik DS18B20
+              </h5>
+              <div class="chart-wrapper">
+                <canvas id="ds18b20Chart"></canvas>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-6">
+            <div class="chart-container">
+              <h5 class="chart-title">
+                <i class="bi bi-graph-up"></i> Grafik Kelembaban Tanah 1
+              </h5>
+              <div class="chart-wrapper">
+                <canvas id="soilMoisture1Chart"></canvas>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-12">
+            <div class="chart-container">
+              <h5 class="chart-title">
+                <i class="bi bi-graph-up"></i> Grafik Kelembaban Tanah 2
+              </h5>
+              <div class="chart-wrapper">
+                <canvas id="soilMoisture2Chart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const jwtToken = "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZGl0eWF0aGluZ3Nib2FyZEBnbWFpbC5jb20iLCJ1c2VySWQiOiJlMTk5NzgwMC00NWQ0LTExZjAtYjUwZS05OWQ5YzhmY2Q4ZTciLCJzY29wZXMiOlsiVEVOQU5UX0FETUlOIl0sInNlc3Npb25JZCI6ImJkNzhjYjAyLWQyZTAtNGI4Zi1hMGZmLTgxYzcwNjNjMDExOSIsImV4cCI6MTc0OTU3NTAwMywiaXNzIjoidGhpbmdzYm9hcmQuY2xvdWQiLCJpYXQiOjE3NDk1NDYyMDMsImZpcnN0TmFtZSI6IkFkaXR5YVRoaW5nc2JvYXJkIiwiZW5hYmxlZCI6dHJ1ZSwiaXNQdWJsaWMiOmZhbHNlLCJpc0JpbGxpbmdTZXJ2aWNlIjpmYWxzZSwicHJpdmFjeVBvbGljeUFjY2VwdGVkIjp0cnVlLCJ0ZXJtc09mVXNlQWNjZXB0ZWQiOnRydWUsInRlbmFudElkIjoiZTE2MTc4MTAtNDVkNC0xMWYwLWI1MGUtOTlkOWM4ZmNkOGU3IiwiY3VzdG9tZXJJZCI6IjEzODE0MDAwLTFkZDItMTFiMi04MDgwLTgwODA4MDgwODA4MCJ9.p8n0p1L-K8tH4b6fdVO7j9LVMbmcQN8-6QcOGY8fbO1i_suAhfocPU4wBkJhYJA-Fws1YzdAaOK9-QXTTithaw";
+    const deviceId = "c360e330-45d6-11f0-add2-093f841cc5dc";
+    const thingsboardHost = "https://thingsboard.cloud";
+
+    let tempChart, ds18b20Chart, soilMoisture1Chart, soilMoisture2Chart, humididtyChart;
+
+    function createChart(canvasId, label, bgColor, borderColor) {
+      if (typeof Chart === 'undefined') {
+        console.error('Chart.js tidak dapat dimuat');
+        return null;
+      }
+      
+      const ctx = document.getElementById(canvasId).getContext("2d");
+      return new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: label,
+            data: [],
+            backgroundColor: bgColor,
+            borderColor: borderColor,
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            pointBackgroundColor: borderColor,
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                usePointStyle: true,
+                padding: 20,
+                font: {
+                  size: 12,
+                  weight: '600'
+                }
+              }
+            }
+          },
+          scales: {
+            x: { 
+              title: { 
+                display: true, 
+                text: 'Waktu',
+                font: { size: 12, weight: '600' }
+              },
+              grid: {
+                color: 'rgba(0,0,0,0.1)'
+              }
+            },
+            y: { 
+              beginAtZero: false, 
+              title: { 
+                display: true, 
+                text: label,
+                font: { size: 12, weight: '600' }
+              },
+              grid: {
+                color: 'rgba(0,0,0,0.1)'
+              }
+            }
+          },
+          elements: {
+            point: {
+              hoverRadius: 8
+            }
+          }
+        }
+      });
+    }
+
+    function initAllCharts() {
+      if (typeof Chart === 'undefined') {
+        console.error('Chart.js belum dimuat, mencoba lagi dalam 1 detik...');
+        setTimeout(initAllCharts, 1000);
+        return;
+      }
+      
+      tempChart = createChart("tempChart", "Suhu (°C)", "rgba(139,69,19,0.2)", "rgba(139,69,19,1)");
+      ds18b20Chart = createChart("ds18b20Chart", "DS18B20 (°C)", "rgba(160,82,45,0.2)", "rgba(160,82,45,1)");
+      soilMoisture1Chart = createChart("soilMoisture1Chart", "Kelembaban Tanah 1", "rgba(210,105,30,0.2)", "rgba(210,105,30,1)");
+      soilMoisture2Chart = createChart("soilMoisture2Chart", "Kelembaban Tanah 2", "rgba(205,133,63,0.2)", "rgba(205,133,63,1)");
+      humididtyChart = createChart("tempHumidity", "Kelembaban (%)", "rgba(222,184,135,0.2)", "rgba(222,184,135,1)");
+    }
+
+    function updateChart(chart, label, value) {
+      if (chart.data.labels.length > 10) {
+        chart.data.labels.shift();
+        chart.data.datasets[0].data.shift();
+      }
+      chart.data.labels.push(label);
+      chart.data.datasets[0].data.push(value);
+      chart.update();
+    }
+
+    function updateRelayStatus(elementId, value) {
+      const element = document.getElementById(elementId);
+      if (value === "Aktif") {
+        element.textContent = "Aktif";
+        element.className = "status-badge status-active";
+      } else if (value === "Tidak Aktif") {
+        element.textContent = "Tidak Aktif";
+        element.className = "status-badge status-inactive";
+      } else {
+        element.textContent = "N/A";
+        element.className = "status-badge status-inactive";
+      }
+    }
+
+    async function fetchTelemetry() {
+      const url = `${thingsboardHost}/api/plugins/telemetry/DEVICE/${deviceId}/values/timeseries?keys=temperature,humidity,ds18b20,soil_moisture1,soil_moisture2,relay1,relay2,relay3,status_kakao`;
+
+      try {
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Authorization": `${jwtToken}`
+          }
+        });
+
+        if (!response.ok) throw new Error("Gagal mengambil data telemetri");
+
+        const data = await response.json();
+
+        const temperature = data.temperature?.[0]?.value ?? "N/A";
+        const humidity = data.humidity?.[0]?.value ?? "N/A";
+        const ds18b20 = data.ds18b20?.[0]?.value ?? "N/A";
+        const soil_moisture1 = data.soil_moisture1?.[0]?.value ?? "N/A";
+        const soil_moisture2 = data.soil_moisture2?.[0]?.value ?? "N/A";
+
+        const relay1Val = data.relay1?.[0]?.value;
+        const relay2Val = data.relay2?.[0]?.value;
+        const relay3Val = data.relay3?.[0]?.value;
+
+        const relay1 = relay1Val === "1" ? "Aktif" : relay1Val === "0" ? "Tidak Aktif" : "N/A";
+        const relay2 = relay2Val === "1" ? "Aktif" : relay2Val === "0" ? "Tidak Aktif" : "N/A";
+        const relay3 = relay3Val === "1" ? "Aktif" : relay3Val === "0" ? "Tidak Aktif" : "N/A";
+
+        const status_kakao = data.status_kakao?.[0]?.value ?? "N/A";
+
+        document.getElementById("temperature").textContent = `${temperature} °C`;
+        document.getElementById("humidity").textContent = `${humidity} %`;
+        document.getElementById("ds18b20").textContent = `${ds18b20} °C`;
+        document.getElementById("soil_moisture1").textContent = `${soil_moisture1}`;
+        document.getElementById("soil_moisture2").textContent = `${soil_moisture2}`;
+        document.getElementById("status_kakao").textContent = `${status_kakao}`;
+
+        updateRelayStatus("relay1", relay1);
+        updateRelayStatus("relay2", relay2);
+        updateRelayStatus("relay3", relay3);
+
+        const timestamp = data.temperature?.[0]?.ts;
+        if (timestamp) {
+          const timeLabel = new Date(timestamp).toLocaleTimeString('id-ID');
+
+          if (temperature !== "N/A") updateChart(tempChart, timeLabel, parseFloat(temperature));
+          if (humidity !== "N/A") updateChart(humididtyChart, timeLabel, parseFloat(humidity));
+          if (ds18b20 !== "N/A") updateChart(ds18b20Chart, timeLabel, parseFloat(ds18b20));
+          if (soil_moisture1 !== "N/A") updateChart(soilMoisture1Chart, timeLabel, parseFloat(soil_moisture1));
+          if (soil_moisture2 !== "N/A") updateChart(soilMoisture2Chart, timeLabel, parseFloat(soil_moisture2));
+        }
+      } catch (error) {
+        const fields = [
+          "temperature", "humidity", "ds18b20", "soil_moisture1", "soil_moisture2", "status_kakao"
+        ];
+        fields.forEach(id => document.getElementById(id).textContent = "Error");
+        
+        ["relay1", "relay2", "relay3"].forEach(id => {
+          const element = document.getElementById(id);
+          element.textContent = "Error";
+          element.className = "status-badge status-inactive";
+        });
+        
+        console.error("Error mengambil data:", error.message);
+      }
+    }
+
+    const esp32IP = "192.168.75.40";
+    const toggleBtn = document.getElementById("toggleSystem");
+
+    function updateStatusFromESP() {
+      fetch(`http://${esp32IP}/getSystemStatus`)
+        .then(response => response.text())
+        .then(data => {
+          if (data === "Active") {
+            toggleBtn.textContent = "OFF";
+            toggleBtn.dataset.status = "ON";
+          } else {
+            toggleBtn.textContent = "ON";
+            toggleBtn.dataset.status = "OFF";
+          }
+        })
+        .catch(err => {
+          console.error("Gagal ambil status dari ESP:", err);
+          toggleBtn.textContent = "Error";
+        });
+    }
+
+    toggleBtn.addEventListener("click", () => {
+      const currentStatus = toggleBtn.dataset.status || "OFF";
+      const newStatus = (currentStatus === "OFF") ? "ON" : "OFF";
+
+      fetch(`http://${esp32IP}/setSystemStatus?status=${newStatus}`)
+        .then(response => response.text())
+        .then(data => {
+          console.log("Respons ESP32:", data);
+          updateStatusFromESP();
+        })
+        .catch(err => {
+          console.error("Gagal kirim status ke ESP:", err);
+        });
+    });
+
+    setInterval(updateStatusFromESP, 2000);
+    updateStatusFromESP();
+
+    initAllCharts();
+    fetchTelemetry();
+    setInterval(fetchTelemetry, 2000);
+  </script>
+</body>
+</html>

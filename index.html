@@ -197,33 +197,33 @@
                 <div class="sensor-icon temp-icon mx-auto">
                   <i class="bi bi-thermometer"></i>
                 </div>
-                <div class="sensor-label">Sensor DS18B20</div>
+                <div class="sensor-label">DS18B20</div>
                 <div class="sensor-value" id="ds18b20">Memuat...</div>
               </div>
             </div>
           </div>
           
-          <!-- Kelembaban Tanah 1 -->
+          <!-- Soil Moisture 1 -->
           <div class="col-md-6 col-lg-4">
             <div class="card sensor-card h-100">
               <div class="card-body text-center">
                 <div class="sensor-icon soil-icon mx-auto">
                   <i class="bi bi-moisture"></i>
                 </div>
-                <div class="sensor-label">Kelembaban Tanah 1</div>
+                <div class="sensor-label">Soil Moisture 1</div>
                 <div class="sensor-value" id="soil_moisture1">Memuat...</div>
               </div>
             </div>
           </div>
           
-          <!-- Kelembaban Tanah 2 -->
+          <!-- Soil Moisture 2 -->
           <div class="col-md-6 col-lg-4">
             <div class="card sensor-card h-100">
               <div class="card-body text-center">
                 <div class="sensor-icon soil-icon mx-auto">
                   <i class="bi bi-moisture"></i>
                 </div>
-                <div class="sensor-label">Kelembaban Tanah 2</div>
+                <div class="sensor-label">Soil Moisture 2</div>
                 <div class="sensor-value" id="soil_moisture2">Memuat...</div>
               </div>
             </div>
@@ -280,6 +280,11 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <div class="text-end mb-3 text-center " style="background: linear-gradient(45deg, #8B4513, #654321); border-radius: 10px; padding: auto; color: white; margin-inline: 40%;">
+          <button class="btn" onclick="downloadLastTelemetry()"> 
+            <i class=""> Download History (CSV)</i></button>
         </div>
         
         <!-- Grafik -->
@@ -346,7 +351,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    const jwtToken = "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZGl0eWF0aGluZ3Nib2FyZEBnbWFpbC5jb20iLCJ1c2VySWQiOiJlMTk5NzgwMC00NWQ0LTExZjAtYjUwZS05OWQ5YzhmY2Q4ZTciLCJzY29wZXMiOlsiVEVOQU5UX0FETUlOIl0sInNlc3Npb25JZCI6IjI5ZTFkM2FkLTk2NDUtNDRhNC04MWM4LWFiZGJlMThhZjJmNyIsImV4cCI6MTc1MDExMDg4MSwiaXNzIjoidGhpbmdzYm9hcmQuY2xvdWQiLCJpYXQiOjE3NTAwODIwODEsImZpcnN0TmFtZSI6IkFkaXR5YVRoaW5nc2JvYXJkIiwiZW5hYmxlZCI6dHJ1ZSwiaXNQdWJsaWMiOmZhbHNlLCJpc0JpbGxpbmdTZXJ2aWNlIjpmYWxzZSwicHJpdmFjeVBvbGljeUFjY2VwdGVkIjp0cnVlLCJ0ZXJtc09mVXNlQWNjZXB0ZWQiOnRydWUsInRlbmFudElkIjoiZTE2MTc4MTAtNDVkNC0xMWYwLWI1MGUtOTlkOWM4ZmNkOGU3IiwiY3VzdG9tZXJJZCI6IjEzODE0MDAwLTFkZDItMTFiMi04MDgwLTgwODA4MDgwODA4MCJ9.7HV7oSyCGjUj6IsMakx_5o2wf_iPQHdpMiWXMlu_CNcqRuoogErgBh05VYpbvw_dnhXYLAniXR77bmdGHLHhyA";
+    const jwtToken = "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZGl0eWF0aGluZ3Nib2FyZEBnbWFpbC5jb20iLCJ1c2VySWQiOiJlMTk5NzgwMC00NWQ0LTExZjAtYjUwZS05OWQ5YzhmY2Q4ZTciLCJzY29wZXMiOlsiVEVOQU5UX0FETUlOIl0sInNlc3Npb25JZCI6IjdjNzY0NTZjLTU3ZWUtNGU0Yi1iMGJhLTE3OGFhM2M0YzM2NSIsImV4cCI6MTc1MDE0NjE4MSwiaXNzIjoidGhpbmdzYm9hcmQuY2xvdWQiLCJpYXQiOjE3NTAxMTczODEsImZpcnN0TmFtZSI6IkFkaXR5YVRoaW5nc2JvYXJkIiwiZW5hYmxlZCI6dHJ1ZSwiaXNQdWJsaWMiOmZhbHNlLCJpc0JpbGxpbmdTZXJ2aWNlIjpmYWxzZSwicHJpdmFjeVBvbGljeUFjY2VwdGVkIjp0cnVlLCJ0ZXJtc09mVXNlQWNjZXB0ZWQiOnRydWUsInRlbmFudElkIjoiZTE2MTc4MTAtNDVkNC0xMWYwLWI1MGUtOTlkOWM4ZmNkOGU3IiwiY3VzdG9tZXJJZCI6IjEzODE0MDAwLTFkZDItMTFiMi04MDgwLTgwODA4MDgwODA4MCJ9.WN5FI2dvssw5FFyoSpg7Yob5e9mFr3Icwg_aj6cTaGiTDTby6SdEAje1tIxrWUfN_mPJ0uIUKleIUWOZETmNyA";
     const deviceId = "c360e330-45d6-11f0-add2-093f841cc5dc";
     const thingsboardHost = "https://thingsboard.cloud";
 
@@ -465,6 +470,45 @@
       }
     }
 
+    const sensorKeys = ["temperature", "humidity", "ds18b20", "soil_moisture1", "soil_moisture2", "relay1", "relay2", "relay3"];
+
+    async function downloadLastTelemetry() {
+      const url = `https://thingsboard.cloud/api/plugins/telemetry/DEVICE/${deviceId}/values/timeseries?keys=${sensorKeys.join(",")}`;
+
+      try {
+        const res = await fetch(url, {
+          headers: {
+            "Content-Type": "application/json",
+            "X-Authorization": `Bearer ${jwtToken}`
+          }
+        });
+
+        const data = await res.json();
+
+        // Format ke CSV
+        let csv = "Waktu,Sensor,Nilai\n";
+
+        for (const key in data) {
+          const item = data[key][0];  // ambil nilai terakhir
+          const waktu = new Date(item.ts).toLocaleString();
+          csv += `"${waktu}","${key}","${item.value}"\n`;
+        }
+
+        // Buat dan unduh file CSV
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", "last_telemetry.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (err) {
+        console.error("Gagal ambil telemetry terakhir:", err);
+        alert("Gagal mengambil data terakhir.");
+      }
+    }
+
+
     async function fetchTelemetry() {
       const url = `${thingsboardHost}/api/plugins/telemetry/DEVICE/${deviceId}/values/timeseries?keys=temperature,humidity,ds18b20,soil_moisture1,soil_moisture2,relay1,relay2,relay3,status_kakao`;
 
@@ -542,7 +586,8 @@
       }
     }
 
-    const esp32IP = "192.168.75.40";
+
+    const esp32IP = "192.168.234.94";
     const toggleBtn = document.getElementById("toggleSystem");
 
     function updateStatusFromESP() {

@@ -142,7 +142,7 @@
       font-weight: 800;
       text-align: center;
       margin-bottom: 2rem;
-    }
+    } 
   </style>
 </head>
 <body>
@@ -282,11 +282,6 @@
           </div>
         </div>
 
-        <div class="text-end mb-3 text-center " style="background: linear-gradient(45deg, #8B4513, #654321); border-radius: 10px; padding: auto; color: white; margin-inline: 40%;">
-          <button class="btn" onclick="downloadLastTelemetry()"> 
-            <i class=""> Download History (CSV)</i></button>
-        </div>
-        
         <!-- Grafik -->
         <div class="row">
           <div class="col-lg-6">
@@ -351,7 +346,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    const jwtToken = "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZGl0eWF0aGluZ3Nib2FyZEBnbWFpbC5jb20iLCJ1c2VySWQiOiJlMTk5NzgwMC00NWQ0LTExZjAtYjUwZS05OWQ5YzhmY2Q4ZTciLCJzY29wZXMiOlsiVEVOQU5UX0FETUlOIl0sInNlc3Npb25JZCI6IjdjNzY0NTZjLTU3ZWUtNGU0Yi1iMGJhLTE3OGFhM2M0YzM2NSIsImV4cCI6MTc1MDE0NjE4MSwiaXNzIjoidGhpbmdzYm9hcmQuY2xvdWQiLCJpYXQiOjE3NTAxMTczODEsImZpcnN0TmFtZSI6IkFkaXR5YVRoaW5nc2JvYXJkIiwiZW5hYmxlZCI6dHJ1ZSwiaXNQdWJsaWMiOmZhbHNlLCJpc0JpbGxpbmdTZXJ2aWNlIjpmYWxzZSwicHJpdmFjeVBvbGljeUFjY2VwdGVkIjp0cnVlLCJ0ZXJtc09mVXNlQWNjZXB0ZWQiOnRydWUsInRlbmFudElkIjoiZTE2MTc4MTAtNDVkNC0xMWYwLWI1MGUtOTlkOWM4ZmNkOGU3IiwiY3VzdG9tZXJJZCI6IjEzODE0MDAwLTFkZDItMTFiMi04MDgwLTgwODA4MDgwODA4MCJ9.WN5FI2dvssw5FFyoSpg7Yob5e9mFr3Icwg_aj6cTaGiTDTby6SdEAje1tIxrWUfN_mPJ0uIUKleIUWOZETmNyA";
+    const jwtToken = "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZGl0eWF0aGluZ3Nib2FyZEBnbWFpbC5jb20iLCJ1c2VySWQiOiJlMTk5NzgwMC00NWQ0LTExZjAtYjUwZS05OWQ5YzhmY2Q4ZTciLCJzY29wZXMiOlsiVEVOQU5UX0FETUlOIl0sInNlc3Npb25JZCI6ImIzMWEzMDQ0LTY4NWQtNDM4YS04NDc3LWU3Mjc0MWYwNWJjYSIsImV4cCI6MTc1MDE3NTA1NCwiaXNzIjoidGhpbmdzYm9hcmQuY2xvdWQiLCJpYXQiOjE3NTAxNDYyNTQsImZpcnN0TmFtZSI6IkFkaXR5YVRoaW5nc2JvYXJkIiwiZW5hYmxlZCI6dHJ1ZSwiaXNQdWJsaWMiOmZhbHNlLCJpc0JpbGxpbmdTZXJ2aWNlIjpmYWxzZSwicHJpdmFjeVBvbGljeUFjY2VwdGVkIjp0cnVlLCJ0ZXJtc09mVXNlQWNjZXB0ZWQiOnRydWUsInRlbmFudElkIjoiZTE2MTc4MTAtNDVkNC0xMWYwLWI1MGUtOTlkOWM4ZmNkOGU3IiwiY3VzdG9tZXJJZCI6IjEzODE0MDAwLTFkZDItMTFiMi04MDgwLTgwODA4MDgwODA4MCJ9.qW3g2Shmakhm6Uoy5wAobad58dq_jJHXziW09C-Lt3p_LvghVpSB1I-Yw2nFVomtftUWH_a8f6W4oJuOxcUxgQ";
     const deviceId = "c360e330-45d6-11f0-add2-093f841cc5dc";
     const thingsboardHost = "https://thingsboard.cloud";
 
